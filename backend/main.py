@@ -3,10 +3,11 @@ from langchain.document_loaders import TextLoader, PyPDFLoader, UnstructuredURLL
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms.openai import OpenAI
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.chains.question_answering import load_qa_chain 
+from langchain.chains.question_answering import load_qa_chain
+from langchain.chains import RetrievalQAWithSourcesChain 
 from langchain.vectorstores.pinecone import Pinecone
 from backend.functions import split_data, data_injestion
-from backend.pinecone_helper import get_documents
+from backend.pinecone_helper import get_documents, existing_index
 from dotenv import load_dotenv
 import pinecone
 import os 
@@ -20,7 +21,7 @@ shared_data = {"value": None}
 
 global_vector_docs = None
 
-llm = OpenAI(temperature=0.9,max_tokens=500)
+llm = OpenAI(temperature=0.6)
 
 def get_shared_data():
     return shared_data
@@ -55,10 +56,13 @@ def insert_data(shared_data: dict = Depends(get_shared_data)):
 
 @app.post("/query/")
 def query(text: str, shared_data: dict = Depends(get_shared_data)):
-    index = pinecone.Index(os.getenv('PINECONE_INDEX'))
     docs = get_documents(text)
-    chain = load_qa_chain(llm=OpenAI(temperature=0.8), chain_type="stuff")
-    answer = chain.run(input_documents = docs, question = query)
+    vector_docs = existing_index()
+    chain = RetrievalQAWithSourcesChain.from_llm(
+        llm = llm, 
+        retriever = vector_docs.as_retriever()
+    )
+    answer = chain({"question":text}, return_only_outputs = True)
     return {"answer": answer}    
 
 

@@ -10,7 +10,7 @@ import os
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
-llm = OpenAI(temperature=0.9,max_tokens=500)
+llm = OpenAI(temperature=0.6)
 
 def split_data(file_name):
     print('split_data')
@@ -22,7 +22,7 @@ def split_data(file_name):
 def split_data_into_chunks(dataset):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size = 500,
-        chunk_overlap = 100
+        chunk_overlap = 0
     )
     docs_data = text_splitter.split_documents(dataset)
     return docs_data

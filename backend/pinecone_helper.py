@@ -53,3 +53,11 @@ def data_injest(docs):
     )
     return docsearch
 
+def existing_index():
+    vector_docs = None
+    if index_name in pinecone.list_indexes():
+        vector_docs = Pinecone.from_existing_index(
+            index_name = os.getenv("PINECONE_INDEX"),
+            embedding = embeddings,
+        )
+    return vector_docs
