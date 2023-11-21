@@ -49,7 +49,7 @@ def insert_data():
 def query(text: str):
     vector_docs = existing_index()
     chain = retrieval_QA(vector_docs)
-    answer = chain({"question":text}, return_only_outputs = True)
+    answer = chain({"question":text}, return_only_outputs = True)['answer']
     return {"answer": answer}    
 
 
