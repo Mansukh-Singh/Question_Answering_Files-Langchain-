@@ -37,21 +37,20 @@ def get_documents(query):
         raise HTTPException(status_code=400, detail=str(e))
 
 def create_index():
-    if index_name not in pinecone.list_indexes():
-        pinecone.create_index(
-            name=os.getenv('PINECONE_INDEX'), 
-            dimension=int(os.getenv('PINECONE_DIMENSION')), 
-            metric=os.getenv('PINECONE_METRIC')
-        )
+    for i in pinecone.list_indexes():
+        pinecone.delete_index(i)
+    pinecone.create_index(
+        name=os.getenv('PINECONE_INDEX'), 
+        dimension=int(os.getenv('PINECONE_DIMENSION')), 
+        metric=os.getenv('PINECONE_METRIC')
+    )
 
 def data_injest(docs):
-    print('pinecone')
-    docsearch = Pinecone.from_documents(
+    Pinecone.from_documents(
         docs,
         embeddings,
         index_name = os.getenv('PINECONE_INDEX')
     )
-    return docsearch
 
 def existing_index():
     vector_docs = None

@@ -13,7 +13,6 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 llm = OpenAI(temperature=0.6)
 
 def split_data(file_name):
-    print('split_data')
     loader = PyPDFLoader(file_name)
     data = loader.load()
     final_docs = split_data_into_chunks(data)
@@ -29,5 +28,11 @@ def split_data_into_chunks(dataset):
 
 def data_injestion(docs_split):
     create_index()
-    vector_docs = data_injest(docs_split)
-    return vector_docs
+    data_injest(docs_split)
+
+def retrieval_QA(vector_array):
+    chain = RetrievalQAWithSourcesChain.from_llm(
+        llm = llm, 
+        retriever = vector_array.as_retriever()
+    )
+    return chain
